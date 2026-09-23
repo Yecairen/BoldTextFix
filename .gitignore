@@ -1,0 +1,46 @@
+# Gradle and generated output
+.gradle/
+.loom-cache/
+build/
+out/
+bin/
+classes/
+*.class
+*.log
+
+# Local game instances and user content
+run/
+runs/
+logs/
+crash-reports/
+/config/
+/saves/
+/resourcepacks/
+/shaderpacks/
+/assets/
+*.ttf
+*.otf
+*.ttc
+*.otc
+
+# Archives are build outputs, except required build inputs
+*.jar
+*.zip
+!gradle/wrapper/gradle-wrapper.jar
+!libs/modmenu/modmenu-21.0.0-beta.1.jar
+
+# IDE and machine-specific settings
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.iml
+*.ipr
+*.iws
+local.properties
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini

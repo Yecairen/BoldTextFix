@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "boldtextfix",
+  "version": "${version}",
+  "name": "BoldTextFix",
+  "description": "修复粗体文本重影，并提供可调的粗体渲染方案。",
+  "license": "MIT",
+  "authors": [
+    "Yecairen"
+  ],
+  "contact": {
+    "sources": "https://github.com/Yecairen/BoldTextFix"
+  },
+  "icon": "icon.png",
+  "environment": "client",
+  "mixins": [
+    "boldtextfix.mixins.json"
+  ],
+  "entrypoints": {
+    "main": [
+      "dev.yecairen.boldtextfix.BoldTextFixMod"
+    ],
+    "client": [
+      "dev.yecairen.boldtextfix.client.BoldTextFixClient"
+    ],
+    "modmenu": [
+      "dev.yecairen.boldtextfix.client.BoldTextFixModMenuIntegration"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "fabric-key-mapping-api-v1": "*",
+    "fabric-lifecycle-events-v1": "*",
+    "fabric-resource-loader-v1": "*",
+    "minecraft": "26.3",
+    "java": ">=25"
+  },
+  "suggests": {
+    "iris": "1.11.6+26.3-fabric",
+    "modmenu": "21.0.0-beta.1"
+  }
+}

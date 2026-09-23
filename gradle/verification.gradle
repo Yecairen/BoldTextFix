@@ -1,0 +1,29 @@
+// Export the resolved build dependencies for the standalone, windowless probes.
+// Keep the mod JAR first so probes exercise packaged classes instead of class directories.
+tasks.register('writeVerificationClasspath') {
+    group = 'verification'
+    description = 'Writes the local classpath for the standalone verification scripts.'
+    dependsOn tasks.named('jar')
+    def modJar = tasks.named('jar', Jar).flatMap { it.archiveFile }
+    def libraries = sourceSets.main.runtimeClasspath - sourceSets.main.output
+    def nativeLibraries = configurations.findByName('minecraftNatives')
+    def destination = layout.buildDirectory.file('verification/classpath.txt')
+    inputs.file(modJar)
+    inputs.files(libraries)
+    if (nativeLibraries != null) inputs.files(nativeLibraries)
+    outputs.file(destination)
+    doLast {
+        def paths = [modJar.get().asFile.absolutePath]
+        paths.addAll(libraries.files.collect { it.absolutePath })
+        if (nativeLibraries != null) {
+            paths.addAll(nativeLibraries.files.collect { it.absolutePath })
+        }
+        def output = destination.get().asFile
+        output.parentFile.mkdirs()
+        output.setText(paths.unique().join(File.pathSeparator), 'UTF-8')
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('writeVerificationClasspath')
+}

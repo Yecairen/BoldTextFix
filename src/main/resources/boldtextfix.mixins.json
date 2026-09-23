@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "dev.yecairen.boldtextfix.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "DilationProgressMixin",
+    "FontMixin",
+    "KeyMappingCategoryMixin",
+    "BakedSheetGlyphMixin",
+    "BitmapProviderDefinitionMixin",
+    "TrueTypeProviderDefinitionMixin",
+    "UnihexProviderDefinitionMixin",
+    "GlyphProviderOriginMixin",
+    "UnbakedGlyphOriginMixin",
+    "GlyphStitcherMixin",
+    "BitmapGlyphBitmapMixin",
+    "GlyphInstanceMixin",
+    "ResourceManagerReloadMixin",
+    "TrueTypeGlyphMixin",
+    "TrueTypeGlyphBitmapMixin",
+    "UnihexGlyphBitmapMixin"
+  ]
+}

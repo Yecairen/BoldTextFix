@@ -1,0 +1,9 @@
+pluginManagement {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+        maven { url = 'https://repo.spongepowered.org/maven/' }
+    }
+}
+
+rootProject.name = 'boldtextfix'

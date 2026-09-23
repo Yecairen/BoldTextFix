@@ -1,0 +1,94 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.17.17'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://repo.spongepowered.org/maven/' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Bundle shortcuts, lifecycle events and resource discovery for standalone installs.
+    implementation include("net.fabricmc.fabric-api:fabric-api-base:2.0.6+fcdff87f5d")
+    implementation include("net.fabricmc.fabric-api:fabric-key-mapping-api-v1:2.0.8+3434d6d95d")
+    implementation include("net.fabricmc.fabric-api:fabric-lifecycle-events-v1:4.1.9+ffef5f675d")
+    implementation include("net.fabricmc.fabric-api:fabric-resource-loader-v1:3.0.4+fcdff87f5d")
+
+    // Compile against the optional integration without bundling Mod Menu.
+    compileOnly files('libs/modmenu/modmenu-21.0.0-beta.1.jar')
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Minecraft runs on Java 25; the Mixin reader needs Java 21-compatible mod classes.
+    options.release = 21
+}
+
+processResources {
+    filteringCharset = 'UTF-8'
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+}
+
+// A Java compile can succeed with missing Mixin outputs after incremental source moves.
+// Check the actual deliverable because Fabric loads these classes from metadata at runtime.
+def boldTextFixJar = tasks.named('jar', Jar)
+tasks.register('verifyBoldTextFixJar') {
+    group = 'verification'
+    description = 'Checks that all declared BoldTextFix entrypoints and Mixins are packaged.'
+    dependsOn boldTextFixJar
+    inputs.file(boldTextFixJar.flatMap { it.archiveFile })
+    doLast {
+        new java.util.zip.ZipFile(boldTextFixJar.get().archiveFile.get().asFile).withCloseable { archive ->
+            def readJson = { String name ->
+                def entry = archive.getEntry(name)
+                if (entry == null) {
+                    throw new GradleException("Missing mod descriptor: " + name)
+                }
+                archive.getInputStream(entry).withCloseable { stream ->
+                    new groovy.json.JsonSlurper().parse(stream, 'UTF-8')
+                }
+            }
+            def metadata = readJson('fabric.mod.json')
+            def mixins = readJson('boldtextfix.mixins.json')
+            def classes = metadata.entrypoints.values().flatten()
+            classes.addAll((mixins.client ?: []).collect { mixins.package + '.' + it })
+            classes.addAll((mixins.mixins ?: []).collect { mixins.package + '.' + it })
+            classes.each { String className ->
+                if (archive.getEntry(className.replace('.', '/') + '.class') == null) {
+                    throw new GradleException("Declared mod class is missing from JAR: " + className)
+                }
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyBoldTextFixJar')
+}
+
+// Preserve the project's license in both distributable archives.
+tasks.named('jar') {
+    from('LICENSE')
+}
+tasks.named('sourcesJar') {
+    from('LICENSE')
+}
+
+apply from: 'gradle/verification.gradle'
