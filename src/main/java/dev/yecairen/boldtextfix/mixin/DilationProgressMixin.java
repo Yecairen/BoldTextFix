@@ -1,6 +1,5 @@
 package dev.yecairen.boldtextfix.mixin;
 
-import dev.yecairen.boldtextfix.BoldTextFixConfig;
 import dev.yecairen.boldtextfix.DilationRenderQueue;
 import dev.yecairen.boldtextfix.client.DilationProgressOverlay;
 import net.minecraft.client.Minecraft;
@@ -30,7 +29,6 @@ abstract class DilationProgressMixin {
 
     @Inject(method = "render", at = @At("TAIL"))
     private void boldtextfix$startAfterNotice(CallbackInfo callbackInfo) {
-        DilationRenderQueue.INSTANCE.afterFrame(DilationProgressOverlay.canDisplay(this.minecraft),
-                BoldTextFixConfig.dilationLimited());
+        DilationRenderQueue.INSTANCE.afterFrame(DilationProgressOverlay.canDisplay(this.minecraft));
     }
 }

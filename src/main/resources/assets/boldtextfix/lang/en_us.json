@@ -1,8 +1,4 @@
 {
-  "screen.boldtextfix.efficiency": "Generation efficiency",
-  "screen.boldtextfix.efficiency.limited": "Limited",
-  "screen.boldtextfix.efficiency.full_speed": "Full speed",
-  "screen.boldtextfix.efficiency.tooltip": "Limited: limits bold glyph generation speed to help reduce stuttering during continuous generation. Full speed: no generation speed limit; faster, but more likely to cause stuttering.",
 
   "screen.boldtextfix.notifications.off": "Off",
   "screen.boldtextfix.notifications.tooltip": "Shows the glyph generation progress panel. Hiding the panel does not affect generation.",
@@ -47,7 +43,7 @@
   "screen.boldtextfix.slider.offset.tooltip": "Higher strength makes text bolder, but values that are too high cause ghosting. At 0px, only the font's original weight is shown.",
   "screen.boldtextfix.enabled.tooltip": "Controls whether BoldTextFix takes effect.",
   "screen.boldtextfix.preview.label": "Preview & help",
-  "screen.boldtextfix.preview.missing_glyph.tooltip": "If Minecraft's default font appears in the preview: 1. The bold font file or font resource pack lacks the character. 2. No bold font file or font resource pack is selected. 3. The selected bold font file or font resource pack has a problem.",
+  "screen.boldtextfix.preview.missing_glyph.tooltip": "If Minecraft's default characters appear in the preview:\n1. The bold font file or font resource pack lacks the character.\n2. No bold font file or font resource pack is selected.\n3. The selected bold font file or font resource pack has a problem.\n§eImportant:\n§eBoldTextFix settings do not affect Minecraft's default bold font.§r",
   "screen.boldtextfix.enabled": "Mod enabled",
   "screen.boldtextfix.disabled": "Mod disabled",
   "screen.boldtextfix.preview.input": "Preview text (not saved)",

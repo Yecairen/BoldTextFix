@@ -1,8 +1,4 @@
 {
-  "screen.boldtextfix.efficiency": "生成效率",
-  "screen.boldtextfix.efficiency.limited": "限制",
-  "screen.boldtextfix.efficiency.full_speed": "全速",
-  "screen.boldtextfix.efficiency.tooltip": "限制：限制粗体字生成速度，有助于缓解连续生成时的卡顿。 全速：生成效率不设限，更快的速度，但也更容易卡顿。",
 
   "screen.boldtextfix.notifications.off": "关",
   "screen.boldtextfix.notifications.tooltip": "显示字形生成进度提示框，关闭提示框不会影响生成。",
@@ -43,11 +39,11 @@
   "screen.boldtextfix.mode.dilation.tooltip.line1": "字体轮廓向外均匀膨胀加粗。",
   "screen.boldtextfix.mode.offset": "原版偏移",
   "screen.boldtextfix.mode.offset.tooltip.line1": "原版二次偏移渲染。",
-  "screen.boldtextfix.slider.dilation.tooltip": "强度越高字越粗，强度为0px时只显示字体原始字重。 每个粗体字符首次渲染时会消耗少量性能，后续会复用缓存。",
+  "screen.boldtextfix.slider.dilation.tooltip": "强度越高字越粗，强度为0px时只显示字体原始字重。 每个粗体字形首次渲染时会消耗少量性能，后续会复用本地缓存。",
   "screen.boldtextfix.slider.offset.tooltip": "强度越高加粗越明显，但过高会产生重影；强度为0px时只显示字体原始字重。",
   "screen.boldtextfix.enabled.tooltip": "决定着本模组是否生效",
   "screen.boldtextfix.preview.label": "预览与说明",
-  "screen.boldtextfix.preview.missing_glyph.tooltip": "如果预览文本出现mc原版字体： 1.粗字体文件/字体资源包缺少对应字符。 2.未选用粗字体文件/字体资源包。 3.选用的粗字体文件/字体资源包出现问题。",
+  "screen.boldtextfix.preview.missing_glyph.tooltip": "如果预览文本出现mc原版字符：\n1.粗字体文件/字体资源包缺少对应字符。\n2.未选用粗字体文件/字体资源包。\n3.选用的粗字体文件/字体资源包出现问题。\n§e强调说明：\n§eBoldTextFix的配置调节不会影响mc原版粗字体。§r",
   "screen.boldtextfix.enabled": "模组已开启",
   "screen.boldtextfix.disabled": "模组已禁用",
   "screen.boldtextfix.preview.input": "预览文本（不保存）",

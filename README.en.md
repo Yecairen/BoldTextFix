@@ -6,12 +6,14 @@ BoldTextFix is a Minecraft client-side Fabric mod that improves the appearance o
 
 [Modrinth](https://modrinth.com/mod/boldtextfix) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/boldtextfix)
 
+Current version: **1.3.1+mc26.3**.
+
 ## Features
 
 - **Mask Dilation**: expands the glyph outlines from font resource packs on demand to reduce ghosting caused by repeated offset draws. Generated results are reused through memory and disk caches.
-- **Vanilla Offset**: preserves Minecraft's second offset draw and lets you adjust its strength.
+- **Vanilla Offset**: adjusts the second offset draw for resource-pack glyphs. Minecraft's own glyphs and vanilla fallback glyphs keep native bold rendering, independent of the mod's strength setting.
 - **Custom Bold Font**: renders bold text with a local TTF/OTF font, with adjustable size and clarity, while leaving regular text unchanged.
-- Compare bold and regular text in real time in the settings screen, drag in font files, view generation progress, and limit glyph generation speed.
+- Compare bold and regular text in real time in the settings screen, drag in font files, and view generation progress. New glyph generation uses a fixed **0.05-second** cooldown after each completed glyph. Reading cached masks does not incur this cooldown.
 - Includes text compatibility handling for Iris shaders.
 
 ## Usage
@@ -46,7 +48,7 @@ sh ./gradlew build
 
 The first build downloads Gradle, Minecraft, and the build dependencies. Output is written to `build/libs/`. The main file is named `boldtextfix-<version>.jar`; the JAR with the `-sources` suffix is for reading the source code and is not the file players should install.
 
-This repository can be built independently. Include the Gradle Wrapper and the pinned compile-time dependency in `libs/modmenu/` when committing the source. The Mod Menu JAR is used only to compile the optional integration and is not bundled in the finished mod.
+This directory includes the complete Gradle Wrapper and builds independently. Mod Menu 21.0.0-beta.1 is resolved from its official Maven repository for optional compile-time integration; it is not bundled in the mod. No machine-specific paths or manually supplied JARs are required.
 
 ## Development
 
@@ -57,9 +59,9 @@ This repository can be built independently. Include the Gradle Wrapper and the p
 | `tests/` | Font, configuration, UI, and cross-process cache regression checks |
 | `gradle/` | Gradle Wrapper and validation tasks |
 | `docs/` | Source structure and verification procedures |
-| `libs/`, `licenses/` | Pinned compile-time dependencies and their licenses |
+| `licenses/` | Copies of third-party licenses |
 
-See the [development guide (Chinese)](docs/development.md) for source entry points, threading rules, and test commands. The build checks that entry point classes and Mixins are packaged correctly. Font, UI, and cache regression checks must be run separately as described in the guide.
+See the [development guide (Chinese)](docs/development.md) for entry points, threading rules, and test commands. `build` compiles every shipped probe, checks packaged entry points and Mixins, and runs configuration migration, glyph policy, cooldown, translation formatting and cross-process cache checks. Full font/UI probes require external fixtures and run separately; windowless probes do not establish in-game visual correctness.
 
 When reporting an issue, include the mod version, Minecraft and loader versions, relevant mods and resource packs, steps to reproduce the problem, and relevant logs. Before sharing a font or resource pack, check that its license permits redistribution.
 

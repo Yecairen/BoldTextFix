@@ -168,9 +168,9 @@ class CustomFontProbe {
                     boolean custom = enabled && bold && mode == BoldTextFixConfig.RepairMode.CUSTOM_FONT;
                     check(CustomBoldFonts.appliesTo(style) == custom, "Selected font takes priority when it contains the character");
                     check(!CustomBoldFonts.appliesTo(style.withObfuscated(true)), "Obfuscation remains unchanged");
-                    boolean synthetic = enabled && bold && mode == BoldTextFixConfig.RepairMode.OFFSET;
+                    boolean synthetic = false;
                     check(FontFixPolicy.shouldHandleCustomBold(style, true) == synthetic,
-                            "Only offset mode modifies vanilla glyph bold rendering");
+                            "All modes leave vanilla glyph bold rendering to Minecraft");
                     check(!FontFixPolicy.shouldUseDilation(style, true), "Vanilla glyph never selects dilation");
                     check(FontFixPolicy.shouldUseDilation(style, false)
                             == (enabled && bold && mode == BoldTextFixConfig.RepairMode.DILATION),
@@ -196,8 +196,10 @@ class CustomFontProbe {
             BoldTextFixConfig.setMode(BoldTextFixConfig.RepairMode.DILATION);
             BoldTextFixConfig.setDilationStrength(strength * 0.025F);
             for (var mode : new BoldTextFixConfig.RepairMode[]{
-                    BoldTextFixConfig.RepairMode.DILATION, BoldTextFixConfig.RepairMode.CUSTOM_FONT}) {
+                    BoldTextFixConfig.RepairMode.DILATION, BoldTextFixConfig.RepairMode.OFFSET,
+                    BoldTextFixConfig.RepairMode.CUSTOM_FONT}) {
                 BoldTextFixConfig.setMode(mode);
+                BoldTextFixConfig.setOffsetStrength(strength * 0.05F);
                 check(!FontFixPolicy.shouldUseDilation(bold, true)
                         && !FontFixPolicy.shouldHandleCustomBold(bold, true),
                         "Every strength leaves native glyph rendering unchanged");

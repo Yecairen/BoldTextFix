@@ -27,3 +27,61 @@ tasks.register('writeVerificationClasspath') {
 tasks.named('build') {
     dependsOn tasks.named('writeVerificationClasspath')
 }
+
+// Keep all shipped probes compilable, including the optional font and loader suites.
+sourceSets {
+    probes {
+        java.srcDirs = ['tests/settings', 'tests/cache', 'tests/resources', 'tests/loader']
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    }
+}
+
+def probeClasspath = files(tasks.named('jar').flatMap { it.archiveFile }) +
+        sourceSets.probes.output + (sourceSets.main.runtimeClasspath - sourceSets.main.output)
+def probeNatives = configurations.findByName('minecraftNatives')
+if (probeNatives != null) probeClasspath += probeNatives
+def probeJava = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+
+tasks.withType(JavaExec).configureEach {
+    def runDirectory = layout.buildDirectory.dir('verification/processes/' + name)
+    workingDir runDirectory.get().asFile
+    doFirst { runDirectory.get().asFile.mkdirs() }
+}
+
+tasks.register('verifyCore', JavaExec) {
+    group = 'verification'
+    description = 'Checks packaged glyph policy, fixed cooldown, config migration and all translations.'
+    dependsOn tasks.named('jar'), tasks.named('probesClasses')
+    javaLauncher = probeJava
+    classpath = probeClasspath
+    mainClass = 'CoreRegressionProbe'
+    jvmArgs '--enable-native-access=ALL-UNNAMED', '-Djava.awt.headless=true'
+    doFirst {
+        args = [layout.buildDirectory.dir('verification/core').get().asFile.absolutePath,
+                tasks.named('jar').get().archiveFile.get().asFile.absolutePath]
+    }
+}
+
+// Separate JVMs prove that saved masks survive a process restart.
+def cacheRun = layout.buildDirectory.dir('verification/cache-' + UUID.randomUUID())
+tasks.register('verifyCacheWrite', JavaExec) {
+    group = 'verification'
+    dependsOn tasks.named('jar'), tasks.named('probesClasses')
+    javaLauncher = probeJava
+    classpath = probeClasspath
+    mainClass = 'CacheProbe'
+    jvmArgs '--enable-native-access=ALL-UNNAMED', '-Djava.awt.headless=true'
+    args cacheRun.get().asFile.absolutePath, 'write'
+}
+tasks.register('verifyCacheRead', JavaExec) {
+    group = 'verification'
+    dependsOn tasks.named('verifyCacheWrite')
+    javaLauncher = probeJava
+    classpath = probeClasspath
+    mainClass = 'CacheProbe'
+    jvmArgs '--enable-native-access=ALL-UNNAMED', '-Djava.awt.headless=true'
+    args cacheRun.get().asFile.absolutePath, 'read'
+}
+tasks.named('check') {
+    dependsOn tasks.named('verifyCore'), tasks.named('verifyCacheRead')
+}

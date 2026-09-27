@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 public final class BoldTextFixMod implements ModInitializer {
     public static final String MOD_ID = "boldtextfix";
     public static final String MOD_NAME = "BoldTextFix";
-    private static final String FALLBACK_DISPLAY_VERSION = "1.3.0+mc26.3";
+    private static final String FALLBACK_DISPLAY_VERSION = "1.3.1+mc26.3";
     private static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static String displayName() {

@@ -46,7 +46,6 @@ public final class BoldTextFixConfig {
     private static volatile String boldFont = "";
     private static volatile float fontSize = DEFAULT_FONT_SIZE;
     private static volatile float fontOversample = DEFAULT_FONT_OVERSAMPLE;
-    private static volatile boolean dilationLimited = true;
     private static volatile boolean dilationNotifications = true;
     private static volatile NotificationCorner notificationCorner = NotificationCorner.TOP_LEFT;
     private static volatile boolean loaded;
@@ -89,9 +88,6 @@ public final class BoldTextFixConfig {
                         boldFont = BoldFontFiles.isFontName(object.get("boldFont").getAsString())
                                 ? object.get("boldFont").getAsString() : "";
                     }
-                    JsonElement limited = object.get("dilationLimited");
-                    dilationLimited = limited == null || !limited.isJsonPrimitive()
-                            || !limited.getAsJsonPrimitive().isBoolean() || limited.getAsBoolean();
                     JsonElement notifications = object.get("dilationNotifications");
                     dilationNotifications = notifications == null || !notifications.isJsonPrimitive()
                             || !notifications.getAsJsonPrimitive().isBoolean() || notifications.getAsBoolean();
@@ -228,19 +224,6 @@ public final class BoldTextFixConfig {
         }
     }
 
-    public static boolean dilationLimited() {
-        load();
-        return dilationLimited;
-    }
-
-    public static void setDilationLimited(boolean value) {
-        load();
-        synchronized (LOCK) {
-            dilationLimited = value;
-            saveLocked();
-        }
-    }
-
     public static boolean dilationNotifications() {
         load();
         return dilationNotifications;
@@ -337,7 +320,6 @@ public final class BoldTextFixConfig {
             root.addProperty("boldFont", boldFont);
             root.addProperty("fontSize", fontSize);
             root.addProperty("fontOversample", fontOversample);
-            root.addProperty("dilationLimited", dilationLimited);
             root.addProperty("dilationNotifications", dilationNotifications);
             root.addProperty("notificationCorner", notificationCorner.serializedName());
             Files.writeString(path, GSON.toJson(root) + System.lineSeparator(), StandardCharsets.UTF_8);

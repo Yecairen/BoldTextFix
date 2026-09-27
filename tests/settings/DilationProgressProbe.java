@@ -23,24 +23,25 @@ final class DilationProgressProbe {
             check(queue.snapshot() == null, "No notification without cache misses");
             check(queue.enqueue(2, () -> {
                 generator.set(Thread.currentThread());
+                time.addAndGet(125_000_000L);
                 return new byte[]{42};
             }, result -> {
                 check(Thread.currentThread() == renderer, "Atlas upload stays on caller thread");
                 check(result[0] == 42, "Worker pixels reach atlas unchanged");
                 uploaded.incrementAndGet();
             }), "First glyph queued");
-            queue.afterFrame(true, false);
+            queue.afterFrame(true);
             check(generator.get() == null, "Generation waits for a visible notification frame");
             check(queue.snapshot().running() && queue.snapshot().total() == 1,
                     "Running notification counts queued glyphs");
             queue.markPresented();
-            queue.afterFrame(true, false);
-            time.addAndGet(125_000_000L);
+            queue.afterFrame(true);
             drain(queue, 1);
+            time.addAndGet(50_000_000L);
             check(generator.get() != renderer && uploaded.get() == 1, "Generation is off-thread");
             var done = queue.snapshot();
             check(!done.running() && done.completed() == 1 && done.failed() == 0, "Successful completion");
-            check(done.elapsedNanos() == 125_000_000L, "Full speed pauses immediately after upload");
+            check(done.elapsedNanos() == 175_000_000L, "Timing includes generation and the fixed final cooldown");
             check(done.remaining() == 1, "Completion begins with full countdown bar");
             time.addAndGet(4_000_000_000L);
             check(queue.snapshot().remaining() == 0.5F, "Countdown half-empty at four seconds");
@@ -57,8 +58,8 @@ final class DilationProgressProbe {
                 throw new IllegalStateException("Expected atlas upload failure");
             });
             check(queue.snapshot().total() == 3, "New batch resets previous totals");
-            queue.afterFrame(false, false);
-            drain(queue, 3);
+            queue.afterFrame(false);
+            drainPaced(queue, 3, time);
             check(queue.snapshot().completed() == 1 && queue.snapshot().failed() == 2,
                     "Failures are never reported as successful glyphs");
 
@@ -66,7 +67,7 @@ final class DilationProgressProbe {
             check(queue.snapshot() == null, "Resource reload clears the notice");
             queue.enqueue(2, () -> new byte[]{1}, result -> uploaded.incrementAndGet());
             queue.reset();
-            queue.afterFrame(false, false);
+            queue.afterFrame(false);
             queue.uploadReady();
             check(uploaded.get() == 2, "Reload discards work before it touches the atlas");
 
@@ -82,7 +83,7 @@ final class DilationProgressProbe {
                 }
                 return new byte[]{1};
             }, result -> uploaded.incrementAndGet());
-            queue.afterFrame(false, false);
+            queue.afterFrame(false);
             check(running.await(3, TimeUnit.SECONDS), "Long glyph starts in worker");
             queue.reset();
             check(interrupted.await(3, TimeUnit.SECONDS), "Reload interrupts in-flight pixel work");
@@ -111,14 +112,15 @@ final class DilationProgressProbe {
         try (var queue = new DilationRenderQueue(time::get)) {
             for (int batch = 1; batch <= 2; batch++) {
                 queue.enqueue(1, () -> new byte[]{1}, pixels -> uploads.incrementAndGet());
-                queue.afterFrame(DilationProgressOverlay.canDisplay(null), false);
+                queue.afterFrame(DilationProgressOverlay.canDisplay(null));
                 long deadline = System.nanoTime() + 3_000_000_000L;
                 while (uploads.get() < batch && System.nanoTime() < deadline) {
                     queue.uploadReady();
                     Thread.sleep(1);
                 }
                 check(uploads.get() == batch, "Glyph generation finishes without a presented notice");
-                queue.afterFrame(false, false);
+                time.addAndGet(50_000_000L);
+                queue.afterFrame(false);
                 time.addAndGet(8_000_000_000L);
             }
             check(queue.snapshot() == null, "Hidden completion notices expire without snapshot polling");
@@ -143,9 +145,10 @@ final class DilationProgressProbe {
                         "Work arriving during the notice resumes cumulative counts");
                 check(resumed.elapsedNanos() == elapsed && resumed.remaining() == 1,
                         "Resuming excludes idle time and restores the full countdown");
-                queue.afterFrame(false, false);
+                queue.afterFrame(false);
                 drain(queue, batch);
-                elapsed += renderTime;
+                time.addAndGet(50_000_000L);
+                elapsed += renderTime + 50_000_000L;
                 check(!queue.snapshot().running() && queue.snapshot().elapsedNanos() == elapsed,
                         "Each rendering segment is accumulated once");
                 time.addAndGet(7_999_999_999L);
@@ -168,73 +171,59 @@ final class DilationProgressProbe {
                 time.addAndGet(40_000_000L);
                 return new byte[]{1};
             }, ignored -> {});
-            queue.afterFrame(false, true);
+            queue.afterFrame(false);
             drain(queue, 1);
             check(queue.snapshot().running() && queue.snapshot().elapsedNanos() == 40_000_000L,
                     "The final glyph keeps timing active during its cooldown");
-            time.addAndGet(59_999_999L);
-            check(queue.snapshot().running() && queue.snapshot().elapsedNanos() == 99_999_999L,
+            time.addAndGet(49_999_999L);
+            check(queue.snapshot().running() && queue.snapshot().elapsedNanos() == 89_999_999L,
                     "The last nanosecond of the final cooldown is still active");
             time.incrementAndGet();
             var done = queue.snapshot();
-            check(!done.running() && done.elapsedNanos() == 100_000_000L && done.remaining() == 1,
+            check(!done.running() && done.elapsedNanos() == 90_000_000L && done.remaining() == 1,
                     "The countdown starts exactly when the final cooldown ends");
             time.addAndGet(4_000_000_000L);
-            check(queue.snapshot().elapsedNanos() == 100_000_000L && queue.snapshot().remaining() == 0.5F,
+            check(queue.snapshot().elapsedNanos() == 90_000_000L && queue.snapshot().remaining() == 0.5F,
                     "Limited mode freezes elapsed time while the notice counts down");
 
             queue.enqueue(1, () -> {
                 time.addAndGet(20_000_000L);
                 return new byte[]{1};
             }, ignored -> {});
-            queue.afterFrame(false, true);
+            queue.afterFrame(false);
             drain(queue, 2);
-            time.addAndGet(60_000_000L);
-            check(!queue.snapshot().running() && queue.snapshot().elapsedNanos() == 180_000_000L,
+            time.addAndGet(50_000_000L);
+            check(!queue.snapshot().running() && queue.snapshot().elapsedNanos() == 160_000_000L,
                     "Resumed limited work adds generation and cooldown but not the idle gap");
 
             // Do not poll at the cooldown boundary: late frames must not inflate rendering time.
             queue.reset();
             queue.enqueue(1, () -> new byte[]{1}, ignored -> {});
-            queue.afterFrame(false, true);
+            queue.afterFrame(false);
             drain(queue, 1);
-            time.addAndGet(4_060_000_000L);
-            check(queue.snapshot().elapsedNanos() == 60_000_000L && queue.snapshot().remaining() == 0.5F,
+            time.addAndGet(4_050_000_000L);
+            check(queue.snapshot().elapsedNanos() == 50_000_000L && queue.snapshot().remaining() == 0.5F,
                     "Late polling uses the real cooldown deadline");
 
-            // Changing modes must end only the remaining cooldown, not reopen completed work.
             queue.reset();
             queue.enqueue(1, () -> new byte[]{1}, ignored -> {});
-            queue.afterFrame(false, true);
-            drain(queue, 1);
-            time.addAndGet(20_000_000L);
-            queue.afterFrame(false, false);
-            check(!queue.snapshot().running() && queue.snapshot().elapsedNanos() == 20_000_000L,
-                    "Full speed ends the pending cooldown at the switch time");
-            queue.afterFrame(false, true);
-            time.addAndGet(20_000_000L);
-            check(!queue.snapshot().running() && queue.snapshot().elapsedNanos() == 20_000_000L,
-                    "Switching back does not reopen a completed batch");
-
-            queue.reset();
-            queue.enqueue(1, () -> new byte[]{1}, ignored -> {});
-            queue.afterFrame(false, true);
+            queue.afterFrame(false);
             drain(queue, 1);
             time.addAndGet(20_000_000L);
             queue.enqueue(1, () -> new byte[]{1}, ignored -> {});
-            queue.afterFrame(false, true);
-            time.addAndGet(40_000_000L);
-            queue.afterFrame(false, true);
+            queue.afterFrame(false);
+            time.addAndGet(30_000_000L);
+            queue.afterFrame(false);
             drain(queue, 2);
             check(queue.snapshot().running() && queue.snapshot().total() == 2,
                     "Requests during the final cooldown stay in the active batch");
-            time.addAndGet(60_000_000L);
-            check(queue.snapshot().elapsedNanos() == 120_000_000L && !queue.snapshot().running(),
+            time.addAndGet(50_000_000L);
+            check(queue.snapshot().elapsedNanos() == 100_000_000L && !queue.snapshot().running(),
                     "Continuous work includes both cooldowns without pausing in between");
 
             queue.reset();
             queue.enqueue(1, () -> { throw new IllegalStateException("Expected failure"); }, ignored -> {});
-            queue.afterFrame(false, true);
+            queue.afterFrame(false);
             drain(queue, 1);
             check(!queue.snapshot().running() && queue.snapshot().completed() == 0 && queue.snapshot().failed() == 1,
                     "Failed generation is counted honestly and cannot leave the notice running forever");
@@ -279,6 +268,19 @@ final class DilationProgressProbe {
             Thread.sleep(1);
         }
         throw new AssertionError("Worker or atlas upload did not complete");
+    }
+
+    private static void drainPaced(DilationRenderQueue queue, int expected, AtomicLong time) throws Exception {
+        long deadline = System.nanoTime() + 3_000_000_000L;
+        while (System.nanoTime() < deadline) {
+            queue.uploadReady();
+            var status = queue.snapshot();
+            if (status.completed() + status.failed() == expected) return;
+            time.addAndGet(50_000_000L);
+            queue.afterFrame(false);
+            Thread.sleep(1);
+        }
+        throw new AssertionError("Paced worker or atlas upload did not complete");
     }
 
     private static void checkPixels() throws Exception {

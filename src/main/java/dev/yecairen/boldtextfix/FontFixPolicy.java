@@ -17,9 +17,9 @@ public final class FontFixPolicy {
     }
 
     public static boolean shouldHandleCustomBold(Style style, boolean vanillaFallbackGlyph) {
-        return isEnabled() && style != null && style.isBold()
+        return isEnabled() && !vanillaFallbackGlyph && style != null && style.isBold()
                 && (BoldTextFixConfig.mode() == BoldTextFixConfig.RepairMode.OFFSET
-                || (BoldTextFixConfig.mode() == BoldTextFixConfig.RepairMode.DILATION && !vanillaFallbackGlyph));
+                || BoldTextFixConfig.mode() == BoldTextFixConfig.RepairMode.DILATION);
     }
 
     public static boolean shouldUseDilation(Style style, boolean vanillaFallbackGlyph) {

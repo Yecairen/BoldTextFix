@@ -13,6 +13,7 @@ repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
     maven { url = 'https://repo.spongepowered.org/maven/' }
+    maven { url = 'https://maven.terraformersmc.com/releases' }
 }
 
 dependencies {
@@ -26,7 +27,7 @@ dependencies {
     implementation include("net.fabricmc.fabric-api:fabric-resource-loader-v1:3.0.4+fcdff87f5d")
 
     // Compile against the optional integration without bundling Mod Menu.
-    compileOnly files('libs/modmenu/modmenu-21.0.0-beta.1.jar')
+    compileOnly 'com.terraformersmc:modmenu:21.0.0-beta.1'
 }
 
 java {
@@ -44,6 +45,13 @@ processResources {
     filteringCharset = 'UTF-8'
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') { expand version: project.version }
+}
+
+// Runtime dependencies use Java 25; emitted mod classes stay compatible with Mixin's reader.
+configurations.configureEach {
+    if (name == 'compileClasspath' || name.endsWith('CompileClasspath')) {
+        attributes.attribute(org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+    }
 }
 
 // A Java compile can succeed with missing Mixin outputs after incremental source moves.

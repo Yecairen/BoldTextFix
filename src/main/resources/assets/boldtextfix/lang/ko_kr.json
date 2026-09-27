@@ -1,8 +1,4 @@
 {
-  "screen.boldtextfix.efficiency": "생성 효율",
-  "screen.boldtextfix.efficiency.limited": "제한",
-  "screen.boldtextfix.efficiency.full_speed": "최대 속도",
-  "screen.boldtextfix.efficiency.tooltip": "제한: 굵은 글리프 생성 속도를 제한하여 연속 생성 중 끊김을 줄이는 데 도움을 줍니다. 최대 속도: 생성 속도를 제한하지 않아 더 빠르지만 끊김이 더 쉽게 발생할 수 있습니다.",
 
   "screen.boldtextfix.notifications.off": "끔",
   "screen.boldtextfix.notifications.tooltip": "글리프 생성 진행 상황 알림창을 표시합니다. 알림창을 꺼도 생성에는 영향을 주지 않습니다.",
@@ -47,7 +43,7 @@
   "screen.boldtextfix.slider.offset.tooltip": "강도가 높을수록 굵게 표시되지만 너무 높으면 잔상이 생깁니다. 강도가 0px이면 글꼴의 원래 굵기만 표시합니다.",
   "screen.boldtextfix.enabled.tooltip": "BoldTextFix가 적용될지 여부를 결정합니다.",
   "screen.boldtextfix.preview.label": "미리보기 및 설명",
-  "screen.boldtextfix.preview.missing_glyph.tooltip": "미리보기에 Minecraft 기본 글꼴이 표시되는 경우: 1. 굵은 글꼴 파일 또는 글꼴 리소스 팩에 해당 글자가 없습니다. 2. 굵은 글꼴 파일 또는 글꼴 리소스 팩을 선택하지 않았습니다. 3. 선택한 굵은 글꼴 파일 또는 글꼴 리소스 팩에 문제가 있습니다.",
+  "screen.boldtextfix.preview.missing_glyph.tooltip": "미리보기에 Minecraft 기본 문자가 표시되는 경우:\n1. 굵은 글꼴 파일 또는 글꼴 리소스 팩에 해당 글자가 없습니다.\n2. 굵은 글꼴 파일 또는 글꼴 리소스 팩을 선택하지 않았습니다.\n3. 선택한 굵은 글꼴 파일 또는 글꼴 리소스 팩에 문제가 있습니다.\n§e중요:\n§eBoldTextFix 설정을 조절해도 Minecraft 기본 굵은 글꼴에는 영향을 주지 않습니다.§r",
   "screen.boldtextfix.enabled": "모드 활성화됨",
   "screen.boldtextfix.disabled": "모드 비활성화됨",
   "screen.boldtextfix.preview.input": "미리 보기 텍스트 (저장되지 않음)",

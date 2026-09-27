@@ -21,7 +21,6 @@ final class SettingsRegressionProbe {
                 "Notifications default to enabled, top left");
         check(BoldTextFixConfig.fontSize() == 10 && BoldTextFixConfig.fontOversample() == 8,
                 "Font defaults retained");
-        check(BoldTextFixConfig.dilationLimited(), "New configs default to limited rendering");
         Path path = root.resolve("config/boldtextfix.json");
         Files.createDirectories(path.getParent());
         for (int version : new int[]{0, 1}) {
@@ -94,7 +93,7 @@ final class SettingsRegressionProbe {
             }
         }
         checkInvalidSettings(path);
-        checkEfficiency(path);
+        checkRemovedEfficiency(path);
         for (var corner : BoldTextFixConfig.NotificationCorner.values()) {
             BoldTextFixConfig.setNotificationCorner(corner);
             BoldTextFixConfig.setDilationNotifications(false);
@@ -112,26 +111,19 @@ final class SettingsRegressionProbe {
         System.out.println("SETTINGS_AND_MIGRATION_ASSERTIONS_PASSED=" + assertions);
     }
 
-    private static void checkEfficiency(Path path) throws Exception {
-        for (boolean limited : new boolean[]{true, false}) {
-            BoldTextFixConfig.setDilationLimited(limited);
+    private static void checkRemovedEfficiency(Path path) throws Exception {
+        for (String value : new String[]{"true", "false", "null", "[]", "{}", "0", "1", "\"bad\""}) {
+            String original = "{\"dilationLimited\":" + value + ",\"fontSize\":10.125}";
+            Files.writeString(path, original);
             reload();
-            check(BoldTextFixConfig.dilationLimited() == limited, "Efficiency state survives restart");
-        }
-        for (String value : new String[]{"null", "[]", "{}", "0", "1", "\"true\"", "\"bad\""}) {
-            Files.writeString(path, "{\"dilationLimited\":" + value + ",\"fontSize\":10.125}");
+            check(BoldTextFixConfig.fontSize() == 10.125F, "Obsolete efficiency cannot disturb other settings");
+            check(Files.readString(path).equals(original), "Reading legacy efficiency never rewrites the config");
+            BoldTextFixConfig.setEnabled(true);
+            check(!JsonParser.parseString(Files.readString(path)).getAsJsonObject().has("dilationLimited"),
+                    "Saving drops the removed efficiency setting");
             reload();
-            check(BoldTextFixConfig.dilationLimited(), "Invalid efficiency value defaults to limited rendering");
-            check(BoldTextFixConfig.fontSize() == 10.125F, "Invalid efficiency does not disturb other settings");
+            check(BoldTextFixConfig.fontSize() == 10.125F, "Unrelated save retains exact legacy numeric values");
         }
-        Files.writeString(path, "{\"fontSize\":10.125}");
-        reload();
-        check(BoldTextFixConfig.dilationLimited(), "Legacy config without efficiency uses limited rendering");
-        BoldTextFixConfig.setDilationLimited(true);
-        reload();
-        check(BoldTextFixConfig.dilationLimited() && BoldTextFixConfig.fontSize() == 10.125F,
-                "Changing efficiency preserves exact legacy numeric values");
-        BoldTextFixConfig.setDilationLimited(false);
     }
 
     private static void checkInvalidSettings(Path path) throws Exception {

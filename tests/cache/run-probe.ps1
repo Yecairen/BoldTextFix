@@ -5,7 +5,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-. (Join-Path $projectRoot 'tests/probe-common.ps1')
+. (Join-Path $projectRoot 'verification/probe-common.ps1')
 $classpath = Get-ProbeClasspath -ProjectRoot $projectRoot -ClasspathFile $ClasspathFile -ModJar $ModJar
 $runDirectory = New-ProbeRunDirectory -ProjectRoot $projectRoot -Suite 'cache'
 $isolated = Join-Path $runDirectory 'isolated'

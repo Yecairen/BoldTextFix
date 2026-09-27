@@ -1,8 +1,4 @@
 {
-  "screen.boldtextfix.efficiency": "生成効率",
-  "screen.boldtextfix.efficiency.limited": "制限",
-  "screen.boldtextfix.efficiency.full_speed": "全速",
-  "screen.boldtextfix.efficiency.tooltip": "制限：太字グリフの生成速度を制限し、連続生成時のカクつきを軽減します。 全速：生成速度を制限せず、より速く生成しますが、カクつきやすくなります。",
 
   "screen.boldtextfix.notifications.off": "オフ",
   "screen.boldtextfix.notifications.tooltip": "字形生成の進行状況を通知枠に表示します。通知枠を非表示にしても生成には影響しません。",
@@ -47,7 +43,7 @@
   "screen.boldtextfix.slider.offset.tooltip": "強度が高いほど太字が強調されますが、高すぎると二重に見えることがあります。強度が0pxの場合は元のウェイトを表示します。",
   "screen.boldtextfix.enabled.tooltip": "BoldTextFix を有効にするかどうかを決めます。",
   "screen.boldtextfix.preview.label": "プレビューと説明",
-  "screen.boldtextfix.preview.missing_glyph.tooltip": "プレビューにMC標準フォントが表示される場合： 1.太字フォントファイルまたはフォントリソースパックに該当する文字がありません。 2.太字フォントファイルまたはフォントリソースパックが選択されていません。 3.選択した太字フォントファイルまたはフォントリソースパックに問題があります。",
+  "screen.boldtextfix.preview.missing_glyph.tooltip": "プレビューにMC標準の文字が表示される場合：\n1.太字フォントファイルまたはフォントリソースパックに該当する文字がありません。\n2.太字フォントファイルまたはフォントリソースパックが選択されていません。\n3.選択した太字フォントファイルまたはフォントリソースパックに問題があります。\n§e重要：\n§eBoldTextFixの設定変更はMC標準フォントの太字表示には影響しません。§r",
   "screen.boldtextfix.enabled": "MOD 有効",
   "screen.boldtextfix.disabled": "MOD 無効",
   "screen.boldtextfix.preview.input": "プレビューテキスト（保存されません）",

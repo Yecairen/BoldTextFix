@@ -97,7 +97,7 @@ class CacheProbe {
                 } catch (Exception failure) { throw new RuntimeException(failure); }
                 finally { ready.countDown(); }
             }, pixels -> { throw new IllegalStateException("Simulated closed atlas"); }), "Enqueue generation");
-            queue.afterFrame(false, true);
+            queue.afterFrame(false);
             check(ready.await(5,TimeUnit.SECONDS), "Generation complete");
             if (reset) queue.reset();
             else {

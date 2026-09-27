@@ -131,13 +131,6 @@ public final class BoldTextFixConfigScreen extends Screen {
         }
 
         if (mode == BoldTextFixConfig.RepairMode.DILATION) {
-            Button efficiencyToggle = new CompactButton(this.controlLeft, 0, this.controlWidth,
-                    efficiencyMessage(), button -> {
-                        BoldTextFixConfig.setDilationLimited(!BoldTextFixConfig.dilationLimited());
-                        button.setMessage(efficiencyMessage());
-                    });
-            efficiencyToggle.setTooltip(tooltip("screen.boldtextfix.efficiency.tooltip"));
-            this.addRow("screen.boldtextfix.efficiency", efficiencyToggle);
             this.addNotificationControls();
         }
 
@@ -187,11 +180,6 @@ public final class BoldTextFixConfigScreen extends Screen {
         nextMode.setTooltip(modeSwitchTooltip(1));
         this.modeControls = List.of(previousMode, modeName, nextMode);
         this.modeControls.forEach(this::addRenderableWidget);
-    }
-
-    private static Component efficiencyMessage() {
-        return Component.translatable(BoldTextFixConfig.dilationLimited()
-                ? "screen.boldtextfix.efficiency.limited" : "screen.boldtextfix.efficiency.full_speed");
     }
 
     private void addNotificationControls() {
@@ -516,11 +504,15 @@ public final class BoldTextFixConfigScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.fill(0, 0, this.width, this.height, 0xF010161C);
+        // Keep the preview backdrop at its previous opacity while revealing more of the world elsewhere.
+        int previewBottom = this.doneButton.getY() - 4;
+        graphics.fill(0, 0, this.width, this.listBottom + 1, 0x9010161C);
+        graphics.fill(0, this.listBottom + 1, this.width, previewBottom, 0xF010161C);
+        graphics.fill(0, previewBottom, this.width, this.height, 0x9010161C);
         graphics.text(this.font, this.title, SCREEN_MARGIN, HEADER_TOP + 4, 0xFFFFFFFF);
         graphics.fill(this.panelLeft, this.headerLineY, this.panelLeft + this.panelWidth, this.listTop, 0xFF3C525B);
         graphics.enableScissor(this.panelLeft, this.listTop, this.panelLeft + this.panelWidth, this.listBottom);
-        graphics.fill(this.panelLeft, this.listTop, this.panelLeft + this.panelWidth, this.listBottom, 0xFF172129);
+        graphics.fill(this.panelLeft, this.listTop, this.panelLeft + this.panelWidth, this.listBottom, 0x20172129);
         for (int index = 0; index < this.rows.size(); index++) {
             OptionRow row = this.rows.get(index);
             int top = this.rowTop(index);
@@ -528,7 +520,7 @@ public final class BoldTextFixConfigScreen extends Screen {
                 continue;
             }
             graphics.fill(this.panelLeft, top, this.panelLeft + this.panelWidth - 10, top + ROW_HEIGHT - 1,
-                    index % 2 == 0 ? 0xFF1B252D : 0xFF172129);
+                    index % 2 == 0 ? 0x301B252D : 0x30172129);
             if (!row.label().getString().isEmpty()) {
                 this.drawLabel(graphics, row.label(), row.controls().getFirst());
             }

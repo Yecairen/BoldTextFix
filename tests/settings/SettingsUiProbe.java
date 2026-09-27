@@ -191,20 +191,12 @@ final class SettingsUiProbe {
                 check(((AbstractSliderButton) sliders.get(index)).getMessage().getString().equals(expected[index]),
                         "Real screen rounds only displayed text to one or two decimal places");
             }
-            Button efficiency = efficiencyControl(screen);
-            check((efficiency != null) == (mode == BoldTextFixConfig.RepairMode.DILATION),
-                    "Efficiency control exists only on dilation page");
-            if (efficiency != null) {
-                check(BoldTextFixConfig.dilationLimited(), "Efficiency starts with the limited default");
-                String limited = efficiency.getMessage().getString();
-                efficiency.onPress(new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0));
-                check(!BoldTextFixConfig.dilationLimited() && !efficiency.getMessage().getString().equals(limited),
-                        "Single button switches to full speed");
-                check(efficiency.getMessage().getStyle().getColor() == null, "Full-speed text has no status color");
-                efficiency.onPress(new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0));
-                check(BoldTextFixConfig.dilationLimited() && efficiency.getMessage().getString().equals(limited),
-                        "Single button switches back to limited rendering");
-                check(efficiency.getMessage().getStyle().getColor() == null, "Limited text has no status color");
+            check(efficiencyControl(screen) == null, "No mode exposes the removed efficiency control");
+            for (Object row : (List<?>) field(BoldTextFixConfigScreen.class, "rows").get(screen)) {
+                var label = (net.minecraft.network.chat.Component) method(row.getClass(), "label").invoke(row);
+                check(!(label.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text)
+                                || !text.getKey().equals("screen.boldtextfix.efficiency"),
+                        "Efficiency label is removed along with its control");
             }
             var positions = (List<?>) field(BoldTextFixConfigScreen.class, "notificationPositionButtons").get(screen);
             check(positions.size() == (mode == BoldTextFixConfig.RepairMode.DILATION ? 5 : 0),
@@ -263,8 +255,7 @@ final class SettingsUiProbe {
                         "Disabled mod also locks the relocated header selector");
             }
             for (Object value : positions) check(!((Button) value).active, "Master disable locks all five choices");
-            check(!(efficiencyControl(screen)).active,
-                    "Master disable also locks efficiency");
+            check(efficiencyControl(screen) == null, "Disabled screen does not restore efficiency");
             master.onPress(new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0));
             for (Object control : (List<?>) field(BoldTextFixConfigScreen.class, "modeControls").get(screen)) {
                 check(((net.minecraft.client.gui.components.AbstractWidget) control).active,

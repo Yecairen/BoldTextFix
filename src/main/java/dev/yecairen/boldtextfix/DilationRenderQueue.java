@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 /** Runs pixel processing off-thread; atlas uploads stay on the rendering thread. */
 public final class DilationRenderQueue implements AutoCloseable {
     public static final DilationRenderQueue INSTANCE = new DilationRenderQueue(System::nanoTime);
-    private static final long COOLDOWN_NANOS = 60_000_000L;
+    private static final long COOLDOWN_NANOS = 50_000_000L;
     private static final long NOTICE_NANOS = 8_000_000_000L;
     private static final int MAX_PENDING_BYTES = 32 * 1024 * 1024;
     private final LongSupplier clock;
@@ -35,7 +35,6 @@ public final class DilationRenderQueue implements AutoCloseable {
     private long noticeAt;
     private boolean finishing;
     private boolean presented;
-    private boolean limited;
     private boolean generated;
     private long generatedAt;
     private long generation;
@@ -68,14 +67,9 @@ public final class DilationRenderQueue implements AutoCloseable {
     }
 
     /** Wait for the first notice frame only when notifications can be displayed. */
-    public synchronized void afterFrame(boolean showNotifications, boolean limited) {
+    public synchronized void afterFrame(boolean showNotifications) {
         long now = this.clock.getAsLong();
         this.updateCompletion(now);
-        if (this.limited && !limited && !this.finishing && this.total > 0 && this.work.isEmpty()) {
-            // Switching to full speed ends a pending final cooldown at the time of the switch.
-            this.finishBatch(now);
-        }
-        this.limited = limited;
         this.notifyAll();
         if (!this.presented && showNotifications) {
             return;
@@ -96,10 +90,10 @@ public final class DilationRenderQueue implements AutoCloseable {
                     throw new InterruptedException("Glyph generation was canceled");
                 }
                 long remaining = COOLDOWN_NANOS - (this.clock.getAsLong() - this.generatedAt);
-                if (!this.limited || !this.generated || remaining <= 0) {
+                if (!this.generated || remaining <= 0) {
                     break;
                 }
-                // Only the pixel worker waits. The monitor is released for frames, mode changes and reloads.
+                // Only the pixel worker waits. Frames and resource reloads remain responsive.
                 TimeUnit.NANOSECONDS.timedWait(this, remaining);
             }
         }
@@ -159,7 +153,7 @@ public final class DilationRenderQueue implements AutoCloseable {
 
     private void updateCompletion(long now) {
         if (this.total > 0 && this.work.isEmpty() && !this.finishing) {
-            long completedAt = this.limited && this.generated
+            long completedAt = this.generated
                     ? Math.max(this.finishedAt, this.generatedAt + COOLDOWN_NANOS) : this.finishedAt;
             if (now - completedAt >= 0L) {
                 this.finishBatch(completedAt);

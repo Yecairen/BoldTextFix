@@ -27,7 +27,6 @@ crash-reports/
 *.jar
 *.zip
 !gradle/wrapper/gradle-wrapper.jar
-!libs/modmenu/modmenu-21.0.0-beta.1.jar
 
 # IDE and machine-specific settings
 .idea/
