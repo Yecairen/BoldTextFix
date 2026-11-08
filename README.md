@@ -4,7 +4,7 @@
 
 BoldTextFix 是一个 Minecraft 客户端 Fabric 模组，用于改善粗体文本的显示效果，提供可调的加粗方案和本地粗字体支持。
 
-[Modrinth](https://modrinth.com/mod/boldtextfix) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/boldtextfix)
+ · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/boldtextfix)
 
 当前版本：**1.3.1+mc26.3**。
 
