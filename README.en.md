@@ -4,7 +4,7 @@
 
 BoldTextFix is a Minecraft client-side Fabric mod that improves the appearance of bold text, with adjustable bold rendering methods and support for local bold fonts.
 
-[Modrinth](https://modrinth.com/mod/boldtextfix) · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/boldtextfix)
+ · [CurseForge](https://www.curseforge.com/minecraft/mc-mods/boldtextfix)
 
 Current version: **1.3.1+mc26.3**.
 
